@@ -8,7 +8,7 @@ const tours = JSON.parse(
 // 2) ROUTE HANDLERS
 
 exports.checkID = (req, res, next, val) => {
-  console.log(`Tour id is: ${val}`);
+  // console.log(`Tour id is: ${val}`);
 
   if (req.params.id * 1 > tours.length) {
     return res.status(404).json({
@@ -20,7 +20,7 @@ exports.checkID = (req, res, next, val) => {
 };
 
 exports.checkBody = (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
 
   if (!req.body.name || !req.body.price) {
     return res.status(400).json({
@@ -32,7 +32,7 @@ exports.checkBody = (req, res, next) => {
 };
 
 exports.getAllTours = (req, res) => {
-  console.log(req.requestTime);
+  // console.log(req.requestTime);
 
   res.status(200).json({
     status: 'success',
@@ -45,7 +45,7 @@ exports.getAllTours = (req, res) => {
 };
 
 exports.getTour = (req, res) => {
-  console.log(req.params);
+  // console.log(req.params);
   const id = req.params.id * 1; // to convert it to a number
   const tour = tours.find((el) => el.id === id);
 

@@ -67,8 +67,8 @@ const showAlert = (type, msg) => {
 
 // login.js
 const login = async (email, password) => {
-  console.log('LOGIN');
-  console.log(email, password);
+  // console.log('LOGIN');
+  // console.log(email, password);
   try {
     const result = await axios({
       method: 'POST',
@@ -130,7 +130,7 @@ const bookTour = async (tourId) => {
   try {
     // 1)Get checkout session from API
     const session = await axios(`/api/v1/booking/checkout-session/${tourId}`);
-    console.log(session);
+    // console.log(session);
 
     // 2) Create checkout form + charge credit cart
     await stripe.redirectToCheckout({
@@ -176,7 +176,7 @@ if (userDataForm) {
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    console.log(form);
+    // console.log(form);
 
     // const name = document.getElementById('name').value;
     // const email = document.getElementById('email').value;

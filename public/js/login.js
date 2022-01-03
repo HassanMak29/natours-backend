@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { showAlert } from './alerts';
 
-const login = async (email, password) => {
+export const login = async (email, password) => {
   // console.log('LOGIN');
   // console.log(email, password);
   try {

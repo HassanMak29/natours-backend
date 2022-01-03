@@ -54,7 +54,7 @@ const sendErrorProd = (err, req, res) => {
         message: err.message,
       });
     }
-    // B) Programming or other error: don't leak error details to client
+    // B) Programming or other unknown error: don't leak error details to client
     // 1) Log error to console
     console.error('ERROR 💥', err);
     // 2) Send generic message
@@ -66,7 +66,7 @@ const sendErrorProd = (err, req, res) => {
   // B) RENDERED WEBSITE
   // a) Operational, trusted error: send message to client
   if (err.isOperational) {
-    console.log(err);
+    // console.log(err);
     return res.status(err.statusCode).render('error', {
       title: 'Something went wrong!',
       msg: err.message,
