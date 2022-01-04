@@ -8777,7 +8777,7 @@ exports.hideAlert = hideAlert;
 
 var showAlert = function showAlert(type, msg) {
   hideAlert();
-  var markup = "<div class=\"alert alert--".concat(type, "\">{msg}</div>");
+  var markup = "<div class=\"alert alert--".concat(type, "\">").concat(msg, "</div>");
   document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
   window.setTimeout(hideAlert, 5000);
 };
