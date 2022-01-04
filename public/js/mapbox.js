@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const displayMap = (locations) => {
+export const displayMap = (locations) => {
   mapboxgl.accessToken =
     'pk.eyJ1IjoiaGFzc2FubWFrMjkiLCJhIjoiY2t4Z25yN3RmMms0dTMwbzE3MzVsZmg2cSJ9.Txb7-sbSByU7yu5Crownbw';
   var map = new mapboxgl.Map({

@@ -169,3 +169,5 @@ app.all('*', (req, res, next) => {
 app.use(globalErrorHandler);
 
 module.exports = app;
+
+// "build:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled"

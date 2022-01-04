@@ -11,12 +11,13 @@
     "dev": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js/bundled",
-    "build:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled"
+    "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
+    "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
   "author": "Hassan Makhloufi",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "axios": "^0.24.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
@@ -34,7 +35,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "nodemailer": "^6.7.1",
-    "parcel": "^2.0.1",
+    "parcel": "^1.12.3",
+    "parcel-bundler": "^1.12.5",
     "pug": "^3.0.2",
     "regenerator-runtime": "^0.13.9",
     "sharp": "^0.29.3",
@@ -59,5 +61,8 @@
   },
   "engines": {
     "node": "^16"
+  },
+  "resolutions": {
+    "@babel/preset-env": "7.13.8"
   }
 }
