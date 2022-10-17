@@ -19,7 +19,6 @@ exports.getOverview = catchAsync(async (req, res, next) => {
   // 2) build template
 
   // 3) render that template using tour data from 1)
-
   res.status(200).render('overview', {
     title: 'All tours',
     tours,
@@ -55,6 +54,12 @@ exports.getTour = catchAsync(async (req, res, next) => {
 exports.getLoginForm = (req, res, next) => {
   res.status(200).render('login', {
     title: 'Log into your account',
+  });
+};
+
+exports.getRegisterForm = (req, res, next) => {
+  res.status(200).render('register', {
+    title: 'Register a new account',
   });
 };
 

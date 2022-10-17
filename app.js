@@ -131,6 +131,7 @@ app.use(
   })
 );
 
+// It compresses the responses' sizes
 app.use(compression());
 
 // Test middleware

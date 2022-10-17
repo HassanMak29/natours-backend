@@ -102,6 +102,31 @@ const logout = async () => {
   }
 };
 
+// Sign up
+const register = async (name, email, password, passwordConfirm) => {
+  try {
+    const result = await axios({
+      method: 'POST',
+      url: '/api/v1/users/signup',
+      data: {
+        name,
+        email,
+        password,
+        passwordConfirm,
+      },
+    });
+
+    if (result.data.status === 'success') {
+      showAlert('success', 'You signed up successfully!');
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
+  } catch (err) {
+    showAlert('error', err.response.data.message);
+  }
+};
+
 // updateSettings.js
 const updateSettings = async (data, type) => {
   try {
@@ -146,6 +171,7 @@ const bookTour = async (tourId) => {
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
+const registerForm = document.querySelector('.form--register');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
 const bookBtn = document.getElementById('book-tour');
@@ -168,6 +194,21 @@ if (loginForm) {
 }
 
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
+
+if (registerForm) {
+  registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const passwordConfirm = document.getElementById(
+      'register-passwordConfirm'
+    ).value;
+
+    register(name, email, password, passwordConfirm);
+  });
+}
 
 if (userDataForm) {
   userDataForm.addEventListener('submit', (e) => {
