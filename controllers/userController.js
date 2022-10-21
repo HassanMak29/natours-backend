@@ -1,5 +1,6 @@
 const multer = require('multer');
 const sharp = require('sharp');
+const Booking = require('../models/bookingModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -115,3 +116,17 @@ exports.getUser = factory.getOne(User);
 // Do NOT update passwords with this!
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
+
+exports.getBookingsOfUser = catchAsync(async (req, res, next) => {
+  if (req.params.id === req.user._id.toString()) {
+    const bookings = await Booking.find({ user: req.params.id });
+    if (!bookings) return next(new AppError('This user has no bookings', 404));
+
+    res.status(200).json({
+      status: 'success',
+      data: bookings,
+    });
+  } else {
+    return next(new AppError('You can only see your bookings', 401));
+  }
+});

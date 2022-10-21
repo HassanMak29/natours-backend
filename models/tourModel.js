@@ -1,7 +1,36 @@
+/* eslint-disable */
+
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const User = require('./userModel');
 // const validator = require('validator');
+
+// const startDateSchema = new mongoose.Schema({
+//   date: { type: Date },
+//   participants: [
+//     {
+//       type: mongoose.Schema.ObjectId,
+//       ref: 'User',
+//       validate: {
+//         validator: function (val) {
+//           const indexOfDate = this.startDates.indexOf(val);
+//           if (this.startDates[indexOfDate].participants === this.maxGroupSize) {
+//             this.startDates[indexOfDate].soldOut = true;
+//           }
+//           return this.startDates[indexOfDate].participants < this.maxGroupSize;
+//         },
+//         message:
+//           'The number of participants cannot exceed the maximum group size.',
+//       },
+//     },
+//   ],
+//   soldOut: {
+//     type: Boolean,
+//     default: false,
+//   },
+// });
+
+// mongoose.model('StartDate', startDateSchema);
 
 const tourSchema = new mongoose.Schema(
   {
@@ -99,7 +128,39 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
 
-    startDates: [Date],
+    startDates: [
+      {
+        date: Date,
+        participants: [
+          {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+            // validate: {
+            //   validator: function () {
+            //     const indexOfDate = this.parent().startDates.indexOf(this);
+            //     return (
+            //       this.parent().startDates[indexOfDate].participants.length <=
+            //       this.parent().maxGroupSize
+            //     );
+            //   },
+            //   message:
+            //     'The number of participants cannot exceed the maximum group size.',
+            // },
+          },
+        ],
+        soldOut: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+    // startDates: [
+    //   {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: 'StartDate',
+    //   },
+    // ],
+    // startDates: [Date],
     secretTour: {
       type: Boolean,
       default: false,
@@ -210,6 +271,13 @@ tourSchema.pre(/^find/, function (next) {
 //   console.log(this.pipeline());
 //   next();
 // });
+
+tourSchema
+  .path('startDates')
+  .validate(
+    (startDates) => (!startDates || startDates.length === 0 ? false : true),
+    'Tour needs to have at least one start date'
+  );
 
 const Tour = mongoose.model('Tour', tourSchema);
 

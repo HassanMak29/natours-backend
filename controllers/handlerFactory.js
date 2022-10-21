@@ -89,7 +89,7 @@ exports.getAll = (Model) =>
       status: 'success',
       results: doc.length,
       data: {
-        data: doc, // we can get rid of the second 'tours' and leave only the first one
+        data: doc,
       },
     });
   });

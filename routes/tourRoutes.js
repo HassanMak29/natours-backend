@@ -47,7 +47,7 @@ router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
 
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(tourController.clearDates, tourController.getAllTours)
   .post(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
@@ -55,7 +55,7 @@ router
   );
 router
   .route('/:id')
-  .get(tourController.getTour)
+  .get(tourController.clearDates, tourController.getTour)
   .patch(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
@@ -68,8 +68,12 @@ router
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
   );
-
-// app.route('/api/v1/tours').get(getAllTours).post(createTour);
-// app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
+router
+  .route('/:id/bookings')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.getBookingsOfTour
+  );
 
 module.exports = router;

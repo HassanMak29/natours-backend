@@ -2,6 +2,7 @@
 const multer = require('multer');
 const sharp = require('sharp');
 const Tour = require('../models/tourModel');
+const Booking = require('../models/bookingModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
@@ -331,4 +332,27 @@ exports.getDistances = catchAsync(async (req, res, next) => {
       data: distances,
     },
   });
+});
+
+exports.getBookingsOfTour = catchAsync(async (req, res, next) => {
+  const bookings = await Booking.find({ tour: req.params.id });
+  if (!bookings) return next(new AppError('This tour has no bookings', 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: bookings,
+  });
+});
+
+exports.clearDates = catchAsync(async (req, res, next) => {
+  const currentDate = new Date();
+  try {
+    await Tour.updateMany(
+      {},
+      { $pull: { startDates: { $lte: currentDate.toISOString() } } }
+    );
+  } catch (err) {
+    return next(new AppError(err.message, 400));
+  }
+  next();
 });

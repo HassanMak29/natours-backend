@@ -23,6 +23,7 @@ router.patch(
   userController.updateMe
 );
 router.delete('/deleteMe', userController.deleteMe);
+router.route('/:id/bookings').get(userController.getBookingsOfUser);
 
 router.use(authController.restrictTo('admin'));
 
@@ -35,8 +36,5 @@ router
   .get(userController.getUser)
   .patch(userController.updateUser)
   .delete(userController.deleteUser);
-
-// app.route('/api/v1/users').get(getAllUsers).post(createUser)
-// app.route('/api/v1/users/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 module.exports = router;

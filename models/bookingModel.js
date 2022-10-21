@@ -7,6 +7,11 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Booking must belong to a Tour!'],
   },
 
+  startDate: {
+    type: Date,
+    required: [true, 'A tour must have a date'],
+  },
+
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',

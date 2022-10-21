@@ -147,23 +147,26 @@ const updateSettings = async (data, type) => {
 };
 
 // stripe.js
-const bookTour = async (tourId) => {
+const bookTour = async (tourId, startDate, userId) => {
   const stripe = Stripe(
     'pk_test_51KDFGVHzIzfHChM880b4767h5adpghBKWSYXpvy8X1SWYr7ZFkGOCeRrSdlJU85bDNwjwmdFJlSLeFb9OvUc8niU00L0xKCXTl'
   );
 
   try {
     // 1)Get checkout session from API
-    const session = await axios(`/api/v1/booking/checkout-session/${tourId}`);
+    const session = await axios(
+      `/api/v1/booking/checkout-session/${tourId}/${userId}/${startDate}`
+    );
     // console.log(session);
 
-    // 2) Create checkout form + charge credit cart
+    // 2) Create checkout form + charge credit card
     await stripe.redirectToCheckout({
       sessionId: session.data.session.id,
     });
   } catch (err) {
-    console.log(err);
-    showAlert('error', err);
+    console.error(err);
+    console.error(err.response.data);
+    showAlert('error', err.response.data.message);
   }
 };
 
@@ -253,7 +256,7 @@ if (bookBtn) {
   bookBtn.addEventListener('click', (e) => {
     e.target.textContent = 'Processing...';
     // const tourId = e.target.dataset.tourId;
-    const { tourId } = e.target.dataset;
-    bookTour(tourId);
+    const { tourId, startDate, userId } = e.target.dataset;
+    bookTour(tourId, startDate, userId);
   });
 }
