@@ -120,7 +120,7 @@ exports.checkTourAvailability = catchAsync(async (req, res, next) => {
     );
 
     if (participants.includes(userId))
-      return next(new AppError('This user already booked this tour', 403));
+      return next(new AppError('This user has already booked this tour', 403));
     if (soldOut)
       return next(
         new AppError('This tour is sold out, please try another date', 400)
