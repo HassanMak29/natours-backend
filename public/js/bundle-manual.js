@@ -1,22 +1,22 @@
 /* eslint-disable */
 
-axios.defaults.withCredentials = true;
-axios.interceptors.response.use(
-  (resp) => resp,
-  async (error) => {
-    if (error.response.status === 401) {
-      const res = await axios({
-        method: 'GET',
-        url: '/api/v1/users/refresh',
-      });
+// axios.defaults.withCredentials = true;
+// axios.interceptors.response.use(
+//   (resp) => resp,
+//   async (error) => {
+//     if (error.response.status === 401) {
+//       const res = await axios({
+//         method: 'GET',
+//         url: '/api/v1/users/refresh',
+//       });
 
-      if (res.status === 200) {
-        return axios(error.config);
-      }
-    }
-    return error;
-  }
-);
+//       if (res.status === 200) {
+//         return axios(error.config);
+//       }
+//     }
+//     return error;
+//   }
+// );
 
 // mapbox.js
 const displayMap = (locations) => {
@@ -141,7 +141,7 @@ const register = async (name, email, password, passwordConfirm) => {
       }, 1500);
     }
   } catch (err) {
-    showAlert('error', err.response.data.message);
+    showAlert('error', err.response.data ? err.response.data.message : err);
   }
 };
 
