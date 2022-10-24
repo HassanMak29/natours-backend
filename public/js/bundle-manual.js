@@ -104,7 +104,7 @@ const login = async (email, password) => {
       }, 1500);
     }
   } catch (err) {
-    showAlert('error', err.response.data.message);
+    showAlert('error', err.response.data ? err.response.data.message : err);
   }
 };
 
