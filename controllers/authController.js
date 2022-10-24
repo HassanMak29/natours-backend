@@ -118,15 +118,15 @@ exports.logout = async (req, res) => {
   let refreshToken;
   if (req.cookies.jwtRefresh) {
     refreshToken = req.cookies.jwtRefresh;
+
+    const decoded = await promisify(jwt.verify)(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET
+    );
+
+    // delete refresh token from database for this user
+    await RefreshToken.findOneAndDelete({ user: decoded.id });
   }
-
-  const decoded = await promisify(jwt.verify)(
-    refreshToken,
-    process.env.JWT_REFRESH_SECRET
-  );
-
-  // delete refresh token from database for this user
-  await RefreshToken.findOneAndDelete({ user: decoded.id });
 
   res.cookie('jwtRefresh', 'loggedout', {
     expires: new Date(Date.now()),
