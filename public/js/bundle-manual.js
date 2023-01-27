@@ -49,6 +49,7 @@ const displayMap = (locations) => {
     // Add popup
     new mapboxgl.Popup({
       offset: 30,
+      focusAfterOpen: false,
     })
       .setLngLat(loc.coordinates)
       .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
@@ -183,8 +184,7 @@ const bookTour = async (tourId, startDate, userId) => {
     });
   } catch (err) {
     console.error(err);
-    console.error(err.response.data);
-    showAlert('error', err.response.data.message);
+    showAlert('error', err.response ? err.response.data.message : err);
   }
 };
 

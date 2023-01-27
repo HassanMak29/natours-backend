@@ -1,5 +1,6 @@
 const multer = require('multer');
 const sharp = require('sharp');
+const fs = require('fs');
 const Booking = require('../models/bookingModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
@@ -65,8 +66,6 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // console.log(req.file);
-  // console.log(req.body);
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -80,6 +79,13 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   // 2) Filter out unwanted field names that are not allowed to be updated
   const filteredBody = filterObj(req.body, 'name', 'email');
   if (req.file) filteredBody.photo = req.file.filename;
+
+  // Delete old image of user from public/img folder when user changes his photo
+  const { photo } = await User.findOne({ email: req.body.email });
+  const photoExists = fs.existsSync(`./public/img/users/${photo}`);
+  if (filteredBody.photo && photoExists && photo !== 'default.jpg') {
+    fs.unlinkSync(`./public/img/users/${photo}`);
+  }
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {

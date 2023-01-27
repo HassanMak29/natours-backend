@@ -7,38 +7,21 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
-  // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
-  const { startDates } = tour;
+  const { startDate } = req.params;
 
-  // 2) Create checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    // success_url: `${req.protocol}://${req.get('host')}/?tour=${
-    //   req.params.tourId
-    // }&user=${req.user.id}&price=${tour.price}&startDate=${new Date(
-    //   tour.startDates[0].date
-    // ).getTime()}`,
-    success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`,
-    cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
+    // success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`,
+    // cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
+    success_url: `${process.env.FRONT_URL}/user/bookings`,
+    cancel_url: `${process.env.FRONT_URL}/tour/${tour.slug}-${tour._id}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
     metadata: {
-      startDate: startDates[0].date,
+      startDate: startDate,
     },
     mode: 'payment',
-    // line_items: [
-    //   {
-    //     name: `${tour.name} Tour`,
-    //     description: tour.summery,
-    //     images: [
-    //       `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
-    //     ],
-    //     amount: tour.price * 100,
-    //     currency: 'usd',
-    //     quantity: 1,
-    //   },
-    // ],
     line_items: [
       {
         price_data: {
@@ -46,7 +29,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
           unit_amount: tour.price * 100,
           product_data: {
             name: `${tour.name} Tour`,
-            description: tour.summery,
+            description: tour.summary,
             images: [
               `${req.protocol}://${req.get('host')}/img/tours/${
                 tour.imageCover
@@ -58,104 +41,60 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       },
     ],
   });
-  // 3) Create session as response
+
   res.status(200).json({
     status: 'success',
     session,
   });
 });
 
-// {
-//   name: `${tour.name} Tour`,
-//   description: tour.summery,
-//   images: [
-//     `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
-//   ],
-//   amount: tour.price * 100,
-//   currency: 'usd',
-//   quantity: 1,
-// },
-
-// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-//   // this is only temporary because it is unsecure everyone can make bookings without paying
-//   const { tour, user, price, startDate } = req.query;
-
-//   if (!tour && !user && !price && !startDate) return next();
-
-//   const startDateString = new Date(+startDate).toISOString();
-
-//   await Booking.create({ tour, user, price, startDate: startDateString });
-
-//   await Tour.findById(tour, (e, data) => {
-//     if (e) console.log(e);
-
-//     const { maxGroupSize } = data;
-//     const { participants } = data.startDates.find(
-//       (obj) => obj.date.toISOString() === startDateString
-//     );
-
-//     if (maxGroupSize - participants.length > 1) {
-//       participants.push(user);
-//     } else if (maxGroupSize - participants.length === 1) {
-//       participants.push(user);
-//       data.startDates.find(
-//         (obj) => obj.date.toISOString() === startDateString
-//       ).soldOut = true;
-//     }
-
-//     data.save();
-//   });
-
-//   res.redirect(req.originalUrl.split('?')[0]);
-// });
-
 exports.checkTourAvailability = catchAsync(async (req, res, next) => {
   const { tourId, userId, startDate } = req.params;
 
-  await Tour.findById(tourId, (e, data) => {
-    if (e) console.log('checkTourAvailability event: ', e);
+  const tour = await Tour.findById(tourId);
 
-    const { participants, soldOut } = data.startDates.find(
-      (obj) => obj.date.toISOString() === new Date(+startDate).toISOString()
+  const { participants, soldOut } = tour.startDates.find(
+    (startDateObj) =>
+      startDateObj.date.toISOString() === new Date(+startDate).toISOString()
+  );
+
+  if (participants.includes(userId))
+    return next(new AppError('This user has already booked this tour', 403));
+  if (soldOut)
+    return next(
+      new AppError('This tour is sold out, please try another date', 400)
     );
 
-    if (participants.includes(userId))
-      return next(new AppError('This user has already booked this tour', 403));
-    if (soldOut)
-      return next(
-        new AppError('This tour is sold out, please try another date', 400)
-      );
-
-    next();
-  });
+  next();
 });
 
 const createBookingCheckout = async (session) => {
-  const tour = session.client_reference_id;
-  const user = (await User.findOne({ email: session.customer_email })).id;
+  const tourId = session.client_reference_id;
+  const userId = (await User.findOne({ email: session.customer_email })).id;
   const price = session.amount_total / 100;
-  const startDate = new Date(session.metadata.startDate * 1000).toISOString();
-  await Booking.create({ tour, user, price, startDate });
+  const startDate = new Date(
+    parseInt(session.metadata.startDate, 10)
+  ).toISOString();
 
-  await Tour.findById(tour, (e, data) => {
-    if (e) console.log('checkTourAvailability event: ', e);
+  await Booking.create({ tour: tourId, user: userId, price, startDate });
 
-    const { maxGroupSize } = data;
-    const { participants } = data.startDates.find(
+  const tour = await Tour.findById(tourId);
+
+  const { maxGroupSize } = tour;
+  const { participants } = tour.startDates.find(
+    (startDateObj) => startDateObj.date.toISOString() === startDate
+  );
+
+  if (maxGroupSize - participants.length > 1) {
+    participants.push(userId);
+  } else if (maxGroupSize - participants.length === 1) {
+    participants.push(userId);
+    tour.startDates.find(
       (obj) => obj.date.toISOString() === startDate
-    );
+    ).soldOut = true;
+  }
 
-    if (maxGroupSize - participants.length > 1) {
-      participants.push(user);
-    } else if (maxGroupSize - participants.length === 1) {
-      participants.push(user);
-      data.startDates.find(
-        (obj) => obj.date.toISOString() === startDate
-      ).soldOut = true;
-    }
-
-    data.save();
-  });
+  tour.save();
 };
 
 exports.webhookCheckout = (req, res, next) => {
@@ -179,8 +118,32 @@ exports.webhookCheckout = (req, res, next) => {
   res.status(200).json({ received: true });
 };
 
+exports.deleteBooking = catchAsync(async (req, res, next) => {
+  const booking = await Booking.findByIdAndDelete(req.params.id);
+
+  if (!booking) {
+    return next(new AppError(`No booking found with this ID`, 404));
+  }
+  const tour = await Tour.findById(booking.tour.id);
+
+  const { participants } = tour.startDates.find((startDateObj) =>
+    startDateObj.participants.includes(req.user._id)
+  ) || { participants: [] };
+
+  if (participants.length > 0) {
+    const index = participants.indexOf(req.user._id.toString());
+    participants.splice(index, 1);
+
+    await tour.save();
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
 exports.updateBooking = factory.updateOne(Booking);
-exports.deleteBooking = factory.deleteOne(Booking);
