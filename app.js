@@ -29,7 +29,16 @@ app.set('views', path.join(__dirname, 'views'));
 
 // 1) GLOBAL MIDDLEWARES
 // Implement CORS
-app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
+app.use(
+  cors({
+    origin: [
+      'https://natours-react-seven.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
+    credentials: true,
+  })
+);
 app.options('*', cors());
 // app.options('/api/v1/tours/:id', cors());
 
