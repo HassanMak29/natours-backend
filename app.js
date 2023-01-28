@@ -33,6 +33,7 @@ app.use(
   cors({
     origin: [
       'https://natours-react-seven.vercel.app',
+      'https://natours-hassan.netlify.app',
       'http://localhost:3000',
       'http://localhost:3001',
     ],
