@@ -16,6 +16,7 @@ const cookieOptions = (req, expiresIn) => ({
   expires: new Date(Date.now() + expiresIn),
   httpOnly: true,
   secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+  sameSite: req.secure ? 'none' : 'Lax',
 });
 
 const createSendToken = async (
